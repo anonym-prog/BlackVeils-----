@@ -9,3 +9,4 @@ void hex_encode(const unsigned char *in, size_t n, char *out);
 int  hex_decode(const char *in, unsigned char *out, size_t out_cap);
 void make_victim_id(char *out, size_t cap); /* 16 hex char */
 #endif
+
