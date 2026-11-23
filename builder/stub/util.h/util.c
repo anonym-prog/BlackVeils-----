@@ -1,0 +1,11 @@
+/* builder/stub/util.h */
+#ifndef UTIL_H
+#define UTIL_H
+#include <windows.h>
+#include <stddef.h>
+
+void xor_buf(unsigned char *buf, size_t n, unsigned char key);
+void hex_encode(const unsigned char *in, size_t n, char *out);
+int  hex_decode(const char *in, unsigned char *out, size_t out_cap);
+void make_victim_id(char *out, size_t cap); /* 16 hex char */
+#endif
